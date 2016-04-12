@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript" src="js/chat_go.js"></script>
+</head>
+<body>
+<div class="container">
+
+    <div id="registro">
+        <form id="form_registro">
+            User name:
+            <input type="text" name="user_name" id="user_name">
+            <input type="submit" value="Registrate">    
+        </form>
+
+    </div>
+    <div id="container_chat">
+        <div class="chat">
+            <div id="chatZone_" name="chatZone"></div>
+                <textarea rows="20" cols="70" id="chat_area"></textarea>
+                <form id="form_message">
+                    <input type="text" id="msg" name="msg" autofocus="true"/>
+                    <input type="submit" id=send value=Send>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

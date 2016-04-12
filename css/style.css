@@ -1,0 +1,27 @@
+body{
+ font-family: "Comic Sans MS", Helvetica, Arial, sans-serif;
+ font-size: 14px;
+ line-height: 32px;
+ color: #333333;
+ font-weight: normal;
+}
+#container_chat{
+	display: none;
+}
+textarea
+  {
+  	resize: none;
+	border: 2px solid #765942;
+	border-radius: 10px;
+	height: 200;
+	width: 400px;
+  }
+  
+#msg
+  {
+  	width: 340px;
+	border: 2px solid  #765942;
+	border-radius: 5px;
+	
+  }
+  
