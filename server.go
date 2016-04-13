@@ -11,6 +11,8 @@ import (
     "github.com/gorilla/mux"
     "github.com/gorilla/websocket"
     "sync"
+    //"io/ioutil"
+    "encoding/json"
 )
 
 var Users = make(map[string]User)
@@ -21,8 +23,12 @@ type User struct {
     user_name string
 }
 
-type request struct {
-    user_name string `json:"user_name"`
+type Request struct{
+    user_name string  `json:"user_name"`
+}
+
+type Response struct{
+    valid  bool `json:"valid"`
 }
 
 func main() {
@@ -32,6 +38,7 @@ func main() {
     
     mux.HandleFunc("/", HomeHandler).Methods("GET")
     mux.HandleFunc("/ws/{user_name}", web_socket)
+    mux.HandleFunc("/validate", validate).Methods("POST")
 
     http.Handle("/", mux)
     http.Handle("/css/", http.StripPrefix("/css/", cssHandler))
@@ -45,6 +52,18 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "index.html")
 }
 
+func validate(w http.ResponseWriter, r *http.Request){
+    r.ParseForm()
+    user_name := r.FormValue("user_name")
+
+    response := Response{}
+    if validate_user_name(user_name){
+        response.valid = true
+    }else{
+        response.valid = false
+    }
+    json.NewEncoder(w).Encode(response)
+}
 
 func web_socket(w http.ResponseWriter, r *http.Request){
     ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
@@ -53,11 +72,6 @@ func web_socket(w http.ResponseWriter, r *http.Request){
         return
     }
     vars := mux.Vars(r)
-    if !validate_user_name(vars["user_name"]){
-        log.Println("El nombre ya esta en uso ")
-        http.Error(w, "User name in use", 202)
-        return
-    }
     user := create_user(ws, vars["user_name"])
     add_user(user)
     for{
@@ -66,7 +80,8 @@ func web_socket(w http.ResponseWriter, r *http.Request){
             remove_cliente(user.user_name)
             return
         }
-        send_echo(type_message, message, user.user_name)
+        response_message := create_final_message(message, user.user_name)
+        send_echo(type_message, response_message)
     }
 }
 
@@ -95,16 +110,17 @@ func add_user(user User){
     Users[user.user_name] = user
 }
 
-func send_echo(messageType int, message []byte, user_name string) {
+func create_final_message(message []byte, user_name string) []byte{
+    message_string := string(message[:])
+    return []byte(user_name + " : " + message_string) 
+}
+
+func send_echo(messageType int, message []byte) {
     UsersRWMutex.RLock()
     defer UsersRWMutex.RUnlock()
 
-    origin_message := string(message[:])
-    final_message:= user_name + " : " + origin_message
-    final_bite := []byte(final_message)
-
     for _, user := range Users {
-        if err := user.websocket.WriteMessage(messageType, final_bite); err != nil {
+        if err := user.websocket.WriteMessage(messageType, message); err != nil {
             return
         }
     }
