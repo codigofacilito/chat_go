@@ -33,7 +33,7 @@ $( document ).ready(function() {
 			conexion.onmessage = function(response){
 				console.log(response)
 				val = $("#chat_area").val();
-		   		$("#chat_area").val(val + "\n" + response.data); 
+		   	$("#chat_area").val(val + "\n" + response.data); 
 			}
 		}
 		$("#registro").hide();
